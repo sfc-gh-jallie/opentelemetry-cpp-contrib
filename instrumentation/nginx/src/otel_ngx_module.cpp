@@ -179,6 +179,10 @@ TraceContext* GetTraceContext(ngx_http_request_t* req) {
   }
 
   std::unordered_map<ngx_http_request_t*, TraceContext*>* map = (std::unordered_map<ngx_http_request_t*, TraceContext*>*)val->data;
+  if (map == nullptr) {
+    ngx_log_error(NGX_LOG_ERR, req->connection->log, 0, "TraceContextMap was null");
+    return nullptr;
+  }
 auto it = map->find(req);
 if (it != map->end()) {
   return it->second;
