@@ -203,6 +203,9 @@ nostd::string_view WithoutOtelVarPrefix(ngx_str_t value) {
 
 static ngx_int_t
 OtelGetTraceContextVar(ngx_http_request_t* req, ngx_http_variable_value_t* v, uintptr_t data) {
+  if (!IsOtelEnabled(req)) {
+    return NGX_OK;
+  }
   TraceContext* traceContext = GetTraceContext(req);
 
   if (traceContext == nullptr || !traceContext->request_span) {
@@ -237,6 +240,9 @@ OtelGetTraceContextVar(ngx_http_request_t* req, ngx_http_variable_value_t* v, ui
 
 static ngx_int_t
 OtelGetTraceId(ngx_http_request_t* req, ngx_http_variable_value_t* v, uintptr_t data) {
+  if (!IsOtelEnabled(req)) {
+    return NGX_OK;
+  }
   TraceContext* traceContext = GetTraceContext(req);
 
   if (traceContext == nullptr || !traceContext->request_span) {
@@ -286,6 +292,9 @@ OtelGetTraceId(ngx_http_request_t* req, ngx_http_variable_value_t* v, uintptr_t 
 
 static ngx_int_t
 OtelGetSpanId(ngx_http_request_t* req, ngx_http_variable_value_t* v, uintptr_t data) {
+  if (!IsOtelEnabled(req)) {
+    return NGX_OK;
+  }
   TraceContext* traceContext = GetTraceContext(req);
 
   if (traceContext == nullptr || !traceContext->request_span) {
