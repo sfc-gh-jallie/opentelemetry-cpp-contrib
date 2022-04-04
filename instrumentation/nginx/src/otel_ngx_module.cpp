@@ -125,6 +125,16 @@ static ngx_int_t OtelGetContextVar(ngx_http_request_t*, ngx_http_variable_value_
   return NGX_OK;
 }
 
+static bool IsOtelEnabled(ngx_http_request_t* req) {
+  OtelNgxLocationConf* locConf = GetOtelLocationConf(req);
+  if (locConf->enabled) {
+    int ovector[3];
+    return locConf->ignore_paths == nullptr || ngx_regex_exec(locConf->ignore_paths, &req->unparsed_uri, ovector, 0) < 0;
+  } else {
+    return false;
+  }
+}
+
 static ngx_int_t
 OtelGetTraceContextVar(ngx_http_request_t* req, ngx_http_variable_value_t* v, uintptr_t data);
 
@@ -384,15 +394,6 @@ nostd::string_view GetNgxServerName(const ngx_http_request_t* req) {
   return FromNgxString(cscf->server_name);
 }
 
-static bool IsOtelEnabled(ngx_http_request_t* req) {
-  OtelNgxLocationConf* locConf = GetOtelLocationConf(req);
-  if (locConf->enabled) {
-    int ovector[3];
-    return locConf->ignore_paths == nullptr || ngx_regex_exec(locConf->ignore_paths, &req->unparsed_uri, ovector, 0) < 0;
-  } else {
-    return false;
-  }
-}
 
 TraceContext* CreateTraceContext(ngx_http_request_t* req, ngx_http_variable_value_t* val) {
   ngx_pool_cleanup_t* cleanup = ngx_pool_cleanup_add(req->pool, sizeof(TraceContext));
